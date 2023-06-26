@@ -1,6 +1,7 @@
 #include "state.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,22 +21,92 @@ static void find_head(game_state_t* state, unsigned int snum);
 static char next_square(game_state_t* state, unsigned int snum);
 static void update_tail(game_state_t* state, unsigned int snum);
 static void update_head(game_state_t* state, unsigned int snum);
+snake_t* init_snake(size_t);
 
 /* Task 1 */
 game_state_t* create_default_state() {
-  // TODO: Implement this function.
-  return NULL;
+  game_state_t* game_state_ptr = malloc(sizeof(game_state_t));
+  if (game_state_ptr == NULL) {
+    return NULL;
+  }
+
+  const unsigned int num_of_snakes = 1;
+  const unsigned int num_rows = 18;
+  game_state_ptr->num_rows = num_rows;
+  game_state_ptr->num_snakes = num_of_snakes;
+
+  snake_t* snake_ptr = init_snake(num_of_snakes);
+  if (snake_ptr == NULL) {
+    free(game_state_ptr);
+    return NULL;
+  }
+  game_state_ptr->snakes = snake_ptr;
+  
+  char** board_ptr = malloc(num_rows * sizeof(char*));
+  if (board_ptr == NULL) {
+    free(game_state_ptr);
+    free(snake_ptr);
+    return NULL;
+  }
+  const size_t num_columns = 20;
+  for (int i = 0; i < num_rows; i++) {    
+    char* row_ptr = malloc(sizeof(char) * (num_columns + 1));
+    if (row_ptr == NULL) {
+      //TODO: how to free all malloced memory? especially all rows
+      return NULL;
+    }
+    if (i == 0 || i == num_rows - 1) {
+      strcpy(row_ptr, "####################");
+    } else if (i == 2) {
+      strcpy(row_ptr, "# d>D    *         #");
+    } else {
+      strcpy(row_ptr, "#                  #");
+    }
+    *(board_ptr+i) = row_ptr;
+  }
+  game_state_ptr->board = board_ptr;
+
+
+  return game_state_ptr;
+}
+
+// TODO: This is a bad implementation because we accecpt a param of num of snakes but only 
+// initialize the first one, but that is ok currently
+snake_t* init_snake(size_t num_of_snakes) {
+
+  snake_t* snake_ptr = malloc(sizeof(snake_t) * num_of_snakes);
+  if (snake_ptr == NULL) {
+    return NULL;
+  }
+  snake_ptr->live = true;
+  snake_ptr->head_row = 2;
+  snake_ptr->head_col = 4;
+  snake_ptr->tail_col = 2;
+  snake_ptr->tail_row = 2;
+  return snake_ptr;
 }
 
 /* Task 2 */
 void free_state(game_state_t* state) {
-  // TODO: Implement this function.
+  free(state->snakes);
+  for (int i = 0; i < state->num_rows; i++) {
+    free(*(state->board + i));
+  }
+  free(state->board);
+  free(state);
   return;
 }
 
 /* Task 3 */
 void print_board(game_state_t* state, FILE* fp) {
   // TODO: Implement this function.
+  if (state == NULL) {
+    return;
+  }
+  for (int i = 0; i < state->num_rows; i++) {
+    fprintf(fp, *(state->board + i));
+    fprintf(fp, "\n");
+  }
   return;
 }
 
