@@ -124,11 +124,63 @@ bool test_head_to_body() {
 }
 
 bool test_get_next_row() {
-  // TODO: Implement this function.
+  
+  unsigned int cur_row = 5;
+
+  char test_case1[] = {'v', 's', 'S'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put1 = get_next_row(cur_row, test_case1[i]);
+    if (!assert_equals_unsigned_int("out_put1", 6, out_put1)) {
+      return false;
+    }
+  }
+
+  char test_case2[] = {'^', 'w', 'W'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put2 = get_next_row(cur_row, test_case2[i]);
+    if (!assert_equals_unsigned_int("out_put2", 4, out_put2)) {
+      return false;
+    }
+  }
+
+  char test_case3[] = {'a', 'd', '<'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put3 = get_next_row(cur_row, test_case3[i]);
+    if (!assert_equals_unsigned_int("out_put3", 5, out_put3)) {
+      return false;
+    }
+  }
+
   return true;
 }
 
 bool test_get_next_col() {
+  
+  unsigned int cur_col = 5;
+
+  char test_case1[] = {'>', 'd', 'D'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put1 = get_next_col(cur_col, test_case1[i]);
+    if (!assert_equals_unsigned_int("out_put1", 6, out_put1)) {
+      return false;
+    }
+  }
+
+  char test_case2[] = {'<', 'a', 'A'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put2 = get_next_col(cur_col, test_case2[i]);
+    if (!assert_equals_unsigned_int("out_put2", 4, out_put2)) {
+      return false;
+    }
+  }
+
+  char test_case3[] = {'^', 'w', 's'};
+  for (int i = 0; i < 3; i++) {
+    unsigned int out_put3 = get_next_col(cur_col, test_case3[i]);
+    if (!assert_equals_unsigned_int("out_put3", 5, out_put3)) {
+      return false;
+    }
+  }
   // TODO: Implement this function.
   return true;
 }
