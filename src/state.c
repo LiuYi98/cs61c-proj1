@@ -379,33 +379,34 @@ line_stat load_line_length(char *filename) {
     exit(EXIT_FAILURE);
   }
 
-  unsigned int* line_lengths = calloc(INIT_LINE_NUM, sizeof(unsigned int));
+  unsigned int *line_lengths = calloc(INIT_LINE_NUM, sizeof(unsigned int));
   if (line_lengths == NULL) {
     perror("line_lengths malloc error");
     exit(EXIT_FAILURE);
   }
-  
-  line_stat* lsp = malloc(sizeof(line_stat));
+
+  line_stat *lsp = malloc(sizeof(line_stat));
   if (lsp == NULL) {
     perror("line_stat malloc error");
     exit(EXIT_FAILURE);
   }
-  
+
   lsp->line_num = 0;
   lsp->line_lengths = line_lengths;
 
   char c;
   int curr_line_length = 0;
-  int max_line = INIT_LINE_NUM; 
+  int max_line = INIT_LINE_NUM;
   while ((c = fgetc(fp)) != EOF) {
     if (c == '\n') {
       if (lsp->line_num >= (max_line - 1)) {
         max_line += 5;
-        lsp->line_lengths = realloc(lsp->line_lengths, max_line * sizeof(unsigned int));
+        lsp->line_lengths =
+            realloc(lsp->line_lengths, max_line * sizeof(unsigned int));
         if (lsp->line_lengths == NULL) {
           perror("realloc error");
           exit(EXIT_FAILURE);
-        } 
+        }
       }
 
       lsp->line_lengths[lsp->line_num++] = curr_line_length;
@@ -417,7 +418,6 @@ line_stat load_line_length(char *filename) {
   fclose(fp);
   return *lsp;
 }
-
 
 /* Task 5 */
 game_state_t *load_board(char *filename) {
@@ -436,12 +436,12 @@ game_state_t *load_board(char *filename) {
     return NULL;
   }
 
-  char** board = malloc(sizeof(char*) * ls.line_num);
+  char **board = malloc(sizeof(char *) * ls.line_num);
   if (board == NULL) {
     return NULL;
   }
   for (int i = 0; i < ls.line_num; i++) {
-    char* line = malloc(*(ls.line_lengths + i) + 1);
+    char *line = malloc(*(ls.line_lengths + i) + 1);
     if (line == NULL) {
       perror("line malloc error");
       exit(EXIT_FAILURE);
@@ -451,7 +451,6 @@ game_state_t *load_board(char *filename) {
     // consume the '\n'
     fgetc(fp);
   }
-
 
   game_state_ptr->board = board;
   game_state_ptr->num_rows = ls.line_num;
@@ -473,11 +472,45 @@ game_state_t *load_board(char *filename) {
 */
 static void find_head(game_state_t *state, unsigned int snum) {
   // TODO: Implement this function.
+  snake_t *sptr = state->snakes + snum;
+  unsigned int cur_col = sptr->tail_col, cur_row = sptr->tail_row;
+  char cur = state->board[cur_row][cur_col];
+  while (!is_head(cur)) {
+    cur_row = get_next_row(cur_row, cur);
+    cur_col = get_next_col(cur_col, cur);
+    cur = state->board[cur_row][cur_col];
+  }
+  sptr->head_row = cur_row;
+  sptr->head_col = cur_col;
   return;
 }
 
 /* Task 6.2 */
 game_state_t *initialize_snakes(game_state_t *state) {
   // TODO: Implement this function.
-  return NULL;
+  snake_t *spr = NULL;
+  state->num_snakes = 0;
+  for (int i = 0; i < state->num_rows; i++) {
+
+    size_t length = strlen(state->board[i]);
+    for (int j = 0; j < length; j++) {
+      char cur = state->board[i][j];
+      if (!is_tail(cur)) {
+        continue;
+      }
+      spr = realloc(spr, state->num_snakes * sizeof(snake_t));
+      if (spr == NULL) {
+        perror("malloc for snake_t fails");
+        exit(EXIT_FAILURE);
+      }
+      state->snakes = spr;
+      snake_t* cspr = spr + state->num_snakes;
+      cspr->live = true;
+      cspr->tail_row = i;
+      cspr->tail_col = j;
+      find_head(state, state->num_snakes);
+      state->num_snakes++;
+    }
+  }
+  return state;
 }
