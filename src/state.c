@@ -347,7 +347,7 @@ static void update_tail(game_state_t *state, unsigned int snum) {
 /* Task 4.5 */
 void update_state(game_state_t *state, int (*add_food)(game_state_t *state)) {
   // TODO: Implement this function.
-  for (int i = 0; i < state->num_snakes; i++) {
+  for (unsigned int i = 0; i < state->num_snakes; i++) {
     char next = next_square(state, i);
     if (next == '#' || is_snake(next)) {
       // this snake is dead
@@ -376,7 +376,7 @@ line_stat load_line_length(char *filename) {
   FILE *fp = fopen(filename, "r");
   if (fp == NULL) {
     perror("fopen error");
-    exit(EXIT_FAILURE);
+    exit(-1);
   }
 
   unsigned int *line_lengths = calloc(INIT_LINE_NUM, sizeof(unsigned int));
@@ -394,7 +394,7 @@ line_stat load_line_length(char *filename) {
   lsp->line_num = 0;
   lsp->line_lengths = line_lengths;
 
-  char c;
+  int c;
   int curr_line_length = 0;
   int max_line = INIT_LINE_NUM;
   while ((c = fgetc(fp)) != EOF) {
@@ -427,8 +427,6 @@ game_state_t *load_board(char *filename) {
     return NULL;
   }
 
-  unsigned int LINE_NUM = 1000;
-  unsigned int line_length_array[LINE_NUM];
   line_stat ls = load_line_length(filename);
 
   FILE *fp = fopen(filename, "r");
@@ -490,15 +488,15 @@ game_state_t *initialize_snakes(game_state_t *state) {
   // TODO: Implement this function.
   snake_t *spr = NULL;
   state->num_snakes = 0;
-  for (int i = 0; i < state->num_rows; i++) {
+  for (unsigned int i = 0; i < state->num_rows; i++) {
 
     size_t length = strlen(state->board[i]);
-    for (int j = 0; j < length; j++) {
+    for (unsigned int j = 0; j < length; j++) {
       char cur = state->board[i][j];
       if (!is_tail(cur)) {
         continue;
       }
-      spr = realloc(spr, state->num_snakes * sizeof(snake_t));
+      spr = realloc(spr, (state->num_snakes + 1) * sizeof(snake_t));
       if (spr == NULL) {
         perror("malloc for snake_t fails");
         exit(EXIT_FAILURE);
